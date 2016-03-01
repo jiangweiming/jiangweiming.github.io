@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.jberg.xyz/"/>
-  <updated>2016-02-29T15:43:36.000Z</updated>
+  <updated>2016-03-01T11:39:24.000Z</updated>
   <id>http://www.jberg.xyz/</id>
   
   <author>
@@ -20,14 +20,14 @@
     <link href="http://www.jberg.xyz/2016/02/22/foreword-i-want-to-say/"/>
     <id>http://www.jberg.xyz/2016/02/22/foreword-i-want-to-say/</id>
     <published>2016-02-22T15:21:40.000Z</published>
-    <updated>2016-02-29T15:43:36.000Z</updated>
+    <updated>2016-03-01T11:39:24.000Z</updated>
     
     <content type="html">&lt;p&gt;首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h3 id=&quot;充满曲折的博客史&quot;&gt;&lt;a href=&quot;#充满曲折的博客史&quot; class=&quot;headerlink&quot; title=&quot;充满曲折的博客史&quot;&gt;&lt;/a&gt;充满曲折的博客史&lt;/h3&gt;&lt;p&gt;一直想着要建一个自己的博客写一下东西，最初有这个想法是在2013年，所以就在博客园注册了一个帐号，然后就没有然后了。磨磨蹭蹭到了2014年，自己也有了更多的知识、技术和学习方面的积累，也在偶然的情况看到了别人在github pages上的个人博客，于是花了几天时间探索了一下Jekyll，也在github pages上通过clone的方式部署了自己的个人博客。但是github pages配置复杂，自己当时也没有多大的耐心来为自己的博客配置各种第三方的插件，因此最后也没在这上post过一篇文章。&lt;/p&gt;
 &lt;p&gt;一段时间后用上了印象笔记，那时候正是大量接触很多大数据和分布式方面知识和开源系统的时候，于是也就开始在印象笔记里写一些技术知识的学习笔记，写一些心得感悟。但是印象笔记编辑器的使用体验不好，写着写着就发现自己有很多时间花在了文章格式的调整上，所以写东西的速度也将降了下来，大部分想写的技术文章都只列了一个标题（于是传说中的标题党出现了）。断断续续的过程中在知乎上看到了有人推荐马克飞象，一个支持Markdown的印象笔记第三方工具（已收费，但不得不说的是它的使用体验非常棒），所以我从2015年8月份开始使用马克飞象写笔记，然后将写好的笔记同步到印象笔记中，以这种方式稍稍弥补了一些以前的“欠账”。&lt;/p&gt;
-&lt;p&gt;后来在看一些大神的博客知道了Octopress（不知道Octopress的请自行去&lt;a href=&quot;http://http://octopress.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Octopress的官网&lt;/a&gt;脑补），于是花了几天时间折腾Octopress，并且将自己的博客部署到heroku上，但当我开始去美化和配置一些第三方插件的时候，开始觉得Octopress的主题太少而且不是很符合我喜欢的style（我这个就是有些不是处女座的缺有着处女座追求的毛病😉），然后就找到了&lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;和我认为最好的主题&lt;a href=&quot;http://theme-next.iissnan.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;NexT&lt;/a&gt;，后面则是实用Hexo创建了自己的博客并将博客部署到了github上。&lt;/p&gt;
-&lt;h3 id=&quot;我会写些什么&quot;&gt;&lt;a href=&quot;#我会写些什么&quot; class=&quot;headerlink&quot; title=&quot;我会写些什么&quot;&gt;&lt;/a&gt;我会写些什么&lt;/h3&gt;&lt;p&gt;在说了一堆“心酸史”后终于到了最重要的部分：我的博客里会有什么东西？我会写些什么？我的工作领域是大数据和分布式的，因此我所写的技术博文大多都是这方面的内容，比如我对Hadoop、Kafka、Spark等开源框架和一些分布式原理的理解；在空闲的时候我常喜欢拿着kindle paper white到麦当劳看书，所看的书的种类也比较多，也想把我看到的好的书和我的一些感悟分享给大家，所以一些博文里会有一些读后感；我也会把我工作生活中的一些感悟写出来，好的和不好的，某一次到外面爬山或是其它一些零零碎碎的东西都可能会post到我的博客里。&lt;/p&gt;
+&lt;p&gt;后来在看一些大神的博客知道了Octopress（不知道Octopress的请自行去&lt;a href=&quot;http://http://octopress.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Octopress的官网&lt;/a&gt;脑补），于是花了几天时间折腾Octopress，并且将自己的博客部署到heroku上，但当我开始去美化和配置一些第三方插件的时候，开始觉得Octopress的主题太少而且不是很符合我喜欢的style（我就是个不是处女座确有着处女座追求的人😉），然后就找到了&lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;和我认为最好的主题&lt;a href=&quot;http://theme-next.iissnan.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;NexT&lt;/a&gt;，后面则是实用Hexo创建了自己的博客并将博客部署到了github上。&lt;/p&gt;
+&lt;h3 id=&quot;我会写些什么&quot;&gt;&lt;a href=&quot;#我会写些什么&quot; class=&quot;headerlink&quot; title=&quot;我会写些什么&quot;&gt;&lt;/a&gt;我会写些什么&lt;/h3&gt;&lt;p&gt;在说了一堆“心酸史”后终于到了最重要的部分：我的博客里会有什么东西？我会写些什么？我的工作领域是大数据和分布式，因此我所写的技术博文大多都是这方面的内容，比如我对Hadoop、Kafka、Spark等开源框架和一些分布式原理的理解；在空闲的时候我常喜欢拿着kindle paper white到麦当劳看书，所看的书的种类也比较多，也想把我看到的好的书和我的一些感悟分享给大家，所以一些博文里会有一些读后感；我也会把我工作生活中的一些感悟写出来，好的和不好的，或其它一些零零碎碎的东西都可能会post到我的博客里。&lt;/p&gt;
 &lt;p&gt;我的文笔不好，但相对来说清晰的逻辑和对问题多角度的解析对读者来说更为重要，我会本着这两点去写每一篇文章，但是我的见识也毕竟有限，肯定会有许多模糊的甚至是错误的观点出现在文章里，如果读者有发现希望能够在评论中跟我交流以便我改正自己的错误。&lt;/p&gt;
 &lt;p&gt;这些就是我想说的全部，希望我的文章能给大家带来收获。&lt;/p&gt;
 </content>
