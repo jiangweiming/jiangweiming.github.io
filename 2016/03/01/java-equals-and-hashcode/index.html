@@ -1,0 +1,881 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="equals,hashcode,java," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jberg's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="说明本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java中的equals和hashCode">
+<meta property="og:url" content="http://www.jberg.xyz/2016/03/01/java-equals-and-hashcode/index.html">
+<meta property="og:site_name" content="Jberg's Blog">
+<meta property="og:description" content="说明本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。">
+<meta property="og:updated_time" content="2016-03-01T12:21:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java中的equals和hashCode">
+<meta name="twitter:description" content="说明本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Java中的equals和hashCode | Jberg's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Jberg's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">当你感觉到不舒服的时候，就是你成长的时候。</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'VzwsNdxhmjeNZhv8HMBF','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java中的equals和hashCode
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-03-01T20:14:05+08:00" content="2016-03-01">
+              2016-03-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/03/01/java-equals-and-hashcode/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/01/java-equals-and-hashcode/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。</p>
+<a id="more"></a>
+<h3 id="equals和hashCode"><a href="#equals和hashCode" class="headerlink" title="equals和hashCode"></a>equals和hashCode</h3><h4 id="equals应遵循的约定"><a href="#equals应遵循的约定" class="headerlink" title="equals应遵循的约定"></a>equals应遵循的约定</h4><blockquote>
+<p> <strong>Object类中equals方法的注释：</strong>Indicates whether some other object is “equal to” this one. </p>
+</blockquote>
+<p>如引用所述，Java对象中的equals方法（或是从父类继承来的）的主要作用是用来<strong>比较两个对象是否相等</strong>，相等则返回true，否则返回false。</p>
+<p>equals方法的实现应当遵循以下约定（这里用“约定”这个词是应为这些规则不是强制的，但是如果equals的实现不遵循这些约定，Java将不能保证对象的预期行为的正确性）：</p>
+<ol>
+<li><strong>自等性（reflexive）</strong> – 对于任何非null引用x，x.equals(x)应返回true。</li>
+<li><strong>对称性（symmetric）</strong> – 对于任何非null引用x和y，当且仅当y.equals(x)返回true时，x.equals(y)也必须返回true。</li>
+<li><strong>传递性（transitive）</strong> – 对于任何非null引用x、y、z，如果x.equals(y)返回true且y.equals(z)返回true，则x.equals(z)也应返回true。</li>
+<li><strong>一致性（consistent）</strong> – 对于任何非null引用x和y，在实现equals方法的属性没有变更的情况下，对x.equals(y)的多次调用都应一致的返回true或者一致的返回false。</li>
+<li><strong>null比较（null comparison）</strong> – 对于任何非null的引用x，x.equals(null)必须返回false。</li>
+</ol>
+<p>java.lang.Object类的equals方法的实现是比较两个对象是否是同一对象（其实质是比较两个对象在内存中的地址是否一样），JDK源代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 比较两者是否为同一对象</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">this</span> == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="hashCode应遵循的约定"><a href="#hashCode应遵循的约定" class="headerlink" title="hashCode应遵循的约定"></a>hashCode应遵循的约定</h4><blockquote>
+<p><strong>Object类中hashCode方法的注释：</strong>Returns a hash code value for the object. This method is supported for the benefit of hash tables such as those provided by java.util.HashMap.</p>
+</blockquote>
+<p>如引用所述，hashCode的方法返回一个对象的hash值，主要作用就是<strong>使得对象能够成为哈希表（Map）的key或者散列集（Set）的成员</strong>，典型的是HashMap。</p>
+<p>与equals方法类似hashCode方法的实现也要遵循如下约定：</p>
+<ol>
+<li>在Java Application的某次运行过程中，在实现对象的equals方法的属性没有变更的情况下，任何时候对同一个对象调用hashCode方法都应一致的返回同一个integer值。</li>
+<li>如果两个对象相等（即equals返回true），那么两个对象的hashCode方法必须返回同样的integer值。</li>
+<li>如果两个对象不相等（即equals返回false），那么这两个对象的hashCode方法不需要返回不同的integer值。<strong>但应该注意的是两个不同对象的hashCode方法返回不同的值能够显著提高哈希表的性能。</strong></li>
+</ol>
+<p>java.lang.Object类的hashCode方法是一个native方法，它的实现是将对象在内存中的地址转成一个integer，从而实现不同对象返回不同的integer值，JDK源代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// native方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">native</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="equals和hashCode的关系"><a href="#equals和hashCode的关系" class="headerlink" title="equals和hashCode的关系"></a>equals和hashCode的关系</h4><p>上面两个小节是对equals和hashCode的说明，通过对比equals的说明和约定无疑使hashCode的约定更易于理解，hashCode应遵循的约定说明了equals方法和hashCode方法两个非常重要的关系：</p>
+<ol>
+<li><strong>equals和hashCode的一致性</strong> – 在Java Application的某次运行过程中，两个相等的（equals为true）对象的hashCode方法不论调用多少次都应返回同样的hash值。</li>
+<li><strong>unequals对象不强制要求hashCode的不一致</strong> – 这一点是第一点的补充，它要表达的是相等的对象必须返回同样的hash值，但是不相等的对象不需要返回不同的hash值（但若返回不同的hash值能够提高对象在哈希表中的存取性能）。</li>
+</ol>
+<h3 id="正确的实现equals和hashCode"><a href="#正确的实现equals和hashCode" class="headerlink" title="正确的实现equals和hashCode"></a>正确的实现equals和hashCode</h3><h4 id="实现好坏的标准"><a href="#实现好坏的标准" class="headerlink" title="实现好坏的标准"></a>实现好坏的标准</h4><p>在说明如何正确的实现equals和hashCode的方法之前，我们需要有一个判断标准，满足什么条件下这两个方法的实现是正确且高效的。在我看来这个标准主要有两点：一是equals和hashCode的实现必须要满足上述所说的关于两者的约定；二是equals不等的对象的hashCode要尽可能的产生唯一的hash值以实现对象在哈希表中的高效存取。</p>
+<h4 id="一个正确的例子"><a href="#一个正确的例子" class="headerlink" title="一个正确的例子"></a>一个正确的例子</h4><p>对equals和hashCode的正确实现应该使得这两个方法满足上文所说的关于两者的约定，下面是一个正确实现这两个 方法的名为Test的类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> num;</span><br><span class="line">    <span class="keyword">private</span> String value;</span><br><span class="line">    <span class="keyword">private</span> String unmeaningful;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> == obj) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (obj == <span class="keyword">null</span> || obj.getClass() != <span class="keyword">this</span>.getClass()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Test that = (Test) obj;</span><br><span class="line">        <span class="keyword">return</span> num == that.num &amp;&amp; (value == that.value || (value != <span class="keyword">null</span> &amp;&amp; value.equals(that.value)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> hash = <span class="number">7</span>;</span><br><span class="line">        hash = <span class="number">31</span> * hash + num;</span><br><span class="line">        hash = <span class="number">31</span> * hash + (value == <span class="keyword">null</span> ? <span class="number">0</span> : value.hashCode());  </span><br><span class="line">        <span class="keyword">return</span> hash;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 例子中Test有三个属性int类型的num、String类型的value、String类型的unmeaningful，其中属性num和value作为判断对象是否相等的属性，也参与hashCode的计算。</p>
+<h4 id="equals的实现guideline"><a href="#equals的实现guideline" class="headerlink" title="equals的实现guideline"></a>equals的实现guideline</h4><p>首先来看一下Test类的equals方法：在Line 7先将引用obj和this进行比较，如果两者指代的是同一个对象，equals方法能够立即返回；Line 10首先判断obj是否为null，根据equals约定中的null比较原则若obj为null这返回false，如果obj为不null则要比较obj对象和this是否是同一个类，其中有一种使用instanceof的错误实现 <code>if (!(obj instanceof Test)) return false;</code>， 当obj为类Test的子类的实例时，<code>obj instanceof Test</code>返回true，这样的实现可能会违反equals的对称性（symmetric）约定；经过前面的判断obj肯定是Test类的实例，Line 13将obj转换成Test，Line 14分别对obj和this的属性num和value进行相等性比较。</p>
+<p>通过Test类的例子，可以总结出正确实现equals的一般模式：</p>
+<ol>
+<li>先比较参数和当前对象this是否指向同一对象</li>
+<li>判断参数不为null并且和当前对象是同一类型，不要使用instanceof来实现，而是使用<code>if (obj == null || obj.getClass() != this.getClass()) return false;</code>来判断</li>
+<li>将equals方法参数转换成当前类型</li>
+<li>比较参数对象和当前对象中有意义或有效的属性是否相等，对于原生类型的变量通过必要的转换后使用操作符 == 判断是否相等（必要的转换如float类型变量通过Float.floatToIntBits或double类型的变量通过Double.doubleToIntBits转换后在比较，避免浮点数精度丢失产生的影响）；对于引用类型则通过调用它们的equals方法来比较</li>
+<li>检查equals方法的实现看看是否满足equals所要遵循的约定</li>
+<li>重写equals方法的同时一定要重写hashCode方法</li>
+</ol>
+<h4 id="hashCode的实现guideline"><a href="#hashCode的实现guideline" class="headerlink" title="hashCode的实现guideline"></a>hashCode的实现guideline</h4><p>Test类中的hashCode方法：Line 18选择一个初始值7并赋值给变量hash；Line 19选择质数31作为因子并赋值给变量prime；Line 20和Line 21使用类属性num和value计算hash值，对于属性value在调用它的hashCode方法之前还必须判断它是否为null。Test类的hashCode方法的实现遵从hashCode实现约定，并且能够保证equals为true的两对象hashCode方法的多次调用会返回一致的hash值。</p>
+<p>在hashCode方法的实现中，原生类型的变量在参与计算hash值时，可以经过转换后直接参与计算，如float类型变量通过Float.floatToInt或者double类型的变量通过Double.doubleToInt转换后计算hash值，由于hashCode的返回值是int类型，所以long类型的变量也必须转换成int值；而对于其他引用类型的对象，则需要调用对象自己的hashCode方法来计算hash值（当然不能在这个对象为null的时候调用它的hashCode方法）。</p>
+<p>好的hashCode方法的实现除了遵循hashCode的约定外，还应能够实现方法计算出来的hash的分布尽可能的平均，一个好的hashCode方法的实现可以如下guideline：</p>
+<ol>
+<li>为变量hash赋予一个非零的int常量（比如Test类hashCode方法中的int值7）</li>
+<li>在参与equals方法实现中的有意思的变量也必须参与hash值的计算，对于每一不同类型的变量var计算它的hash值var_code：<ul>
+<li>如果var是byte、short、int、char类型，则<code>var_code = (int)var;</code></li>
+<li>如果var是long类型，则<code>var_code = (int)(var ^ (var &gt;&gt;&gt; 32));</code>（Long.hashCode的实现）</li>
+<li>如果var是float类型，则<code>var_code = Float.floatToIntBits(var);</code>（Float.hashCode的实现）</li>
+<li>如果var是double类型，则<code>long bits = Double.doubleToLongBits(var); var_code = (int)(bits ^ (bits &gt;&gt;&gt; 32));</code>（Double.hashCode的实现）</li>
+<li>如果var是boolean类型，则<code>var_code = var ? 1 : 0</code></li>
+<li>如果var是引用类型，则<code>var_code = (null == var) ? 0 : var.hashCode();</code></li>
+</ul>
+</li>
+<li>将变量var在上一步中得出的var_code与变量hash相结合，以代码<code>hash = 31 * hash + var_code</code>的方式计算出新的变量值</li>
+<li>对所有有意义的变量重复上面第二和第三个步骤，并最终返回变量hash作为hashCode方法的返回值</li>
+<li>检查hashCode方法的实现，确保该实现没有违背hashCode方法的约定</li>
+</ol>
+<h4 id="为什么hashCode中使用31作为因子"><a href="#为什么hashCode中使用31作为因子" class="headerlink" title="为什么hashCode中使用31作为因子"></a>为什么hashCode中使用31作为因子</h4><p>在Test类的hashCode方法的实现中变量hash的每一次计算都是通过语句<code>hash = 31 * hash + var_code</code>，另外在java.lang.String类的hashCode方法的实现也使用了31这个数：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h = hash;</span><br><span class="line">    <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">char</span> val[] = value;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">            h = <span class="number">31</span> * h + val[i];</span><br><span class="line">        &#125;</span><br><span class="line">        hash = h;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于31这个数据的使用，在《Effective Java》的第三章关于有说明，其大概意思是：首先31是质数，使用31作为因子能够让hash code的分布尽量均匀；二是31 <em> h能够转换成移位和一个减1计算，即`31 </em> h = (h &lt;&lt; 5) - 1`，计算机对移位操作有优化，在比较旧的机型上性能较好（事实上这一点在现在来说已经不是很明显，所以可以选择一个较大的质数来替换31以实现更好的hash分布，比如524287 等）。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li>java.lang.Object类中equals和hashcode方法的注释</li>
+<li>Java.lang.String/Long/Float/Integer/Double中的hashCode方法</li>
+<li>Technofundo上的文章<a href="http://technofundo.com/tech/java/equalhash.html" target="_blank" rel="external">《Equals and Hash Code》</a></li>
+<li>CSDN上的文章<a href="http://blog.csdn.net/steveguoshao/article/details/12576849" target="_blank" rel="external">《为什么hashcode定义中使用31这个数？》</a></li>
+<li>StackOverflow问题<a href="http://stackoverflow.com/questions/299304/why-does-javas-hashcode-in-string-use-31-as-a-multiplier%EF%BC%89" target="_blank" rel="external">《Why does Java’s hashCode() in String use 31 as a multiplier?》</a></li>
+<li>StackOverflow问题<a href="http://stackoverflow.com/questions/1835976/what-is-a-sensible-prime-for-hashcode-calculation" target="_blank" rel="external">《What is a sensible prime for hashcode calculation?》</a></li>
+<li>并发编程网上的文章<a href="http://ifeve.com/hashcode-method-performance-tuning/" target="_blank" rel="external">《hashcode()方法的性能优化》</a></li>
+</ol>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/equals/" rel="tag">#equals</a>
+          
+            <a href="/tags/hashcode/" rel="tag">#hashcode</a>
+          
+            <a href="/tags/java/" rel="tag">#java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/22/foreword-i-want-to-say/" rel="next" title="写在第一篇博文的话">
+                <i class="fa fa-chevron-left"></i> 写在第一篇博文的话
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/03/jvm-gc-algorithms/" rel="prev" title="Java虚拟机回收算法">
+                Java虚拟机回收算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/03/01/java-equals-and-hashcode/"
+     data-title="Java中的equals和hashCode"
+     data-content=""
+     data-url="http://www.jberg.xyz/2016/03/01/java-equals-and-hashcode/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/03/01/java-equals-and-hashcode/"
+           data-title="Java中的equals和hashCode" data-url="http://www.jberg.xyz/2016/03/01/java-equals-and-hashcode/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpg"
+               alt="Jiangweiming" />
+          <p class="site-author-name" itemprop="name">Jiangweiming</p>
+          <p class="site-description motion-element" itemprop="description">当你感觉到不舒服的时候，<br>就是你成长的时候。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+          
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://https://github.com/jiangweiming" target="_blank">
+                  
+                    <i class="fa fa-globe"></i> github
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.douban.com/people/142282887/" target="_blank">
+                  
+                    <i class="fa fa-globe"></i> douban
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/jberg" target="_blank">
+                  
+                    <i class="fa fa-globe"></i> zhihu
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-sa/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#说明"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#equals和hashCode"><span class="nav-number">2.</span> <span class="nav-text">equals和hashCode</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#equals应遵循的约定"><span class="nav-number">2.1.</span> <span class="nav-text">equals应遵循的约定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hashCode应遵循的约定"><span class="nav-number">2.2.</span> <span class="nav-text">hashCode应遵循的约定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#equals和hashCode的关系"><span class="nav-number">2.3.</span> <span class="nav-text">equals和hashCode的关系</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正确的实现equals和hashCode"><span class="nav-number">3.</span> <span class="nav-text">正确的实现equals和hashCode</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现好坏的标准"><span class="nav-number">3.1.</span> <span class="nav-text">实现好坏的标准</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个正确的例子"><span class="nav-number">3.2.</span> <span class="nav-text">一个正确的例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#equals的实现guideline"><span class="nav-number">3.3.</span> <span class="nav-text">equals的实现guideline</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hashCode的实现guideline"><span class="nav-number">3.4.</span> <span class="nav-text">hashCode的实现guideline</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么hashCode中使用31作为因子"><span class="nav-number">3.5.</span> <span class="nav-text">为什么hashCode中使用31作为因子</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiangweiming</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"jberg"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

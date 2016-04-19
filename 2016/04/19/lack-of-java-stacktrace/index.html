@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="关于,前言," />
+  <meta name="keywords" content="JVM,Java,NullPointerException,stacktrace," />
 
 
 
@@ -59,16 +59,16 @@
 
 
 
-<meta name="description" content="首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。">
+<meta name="description" content="问题描述NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：1&amp;#123;&amp;#10;    &amp;#34;msg&amp;#34;:&amp;#34;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#32321;&amp;#24537;&amp;#65292;&amp;#35831;&amp;#31245;&amp;#205">
 <meta property="og:type" content="article">
-<meta property="og:title" content="写在第一篇博文的话">
-<meta property="og:url" content="http://www.jberg.xyz/2016/02/22/foreword-i-want-to-say/index.html">
+<meta property="og:title" content="NPE缺失异常堆栈信息">
+<meta property="og:url" content="http://www.jberg.xyz/2016/04/19/lack-of-java-stacktrace/index.html">
 <meta property="og:site_name" content="Jberg's Blog">
-<meta property="og:description" content="首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。">
-<meta property="og:updated_time" content="2016-03-01T11:39:24.000Z">
+<meta property="og:description" content="问题描述NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：1&amp;#123;&amp;#10;    &amp;#34;msg&amp;#34;:&amp;#34;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#32321;&amp;#24537;&amp;#65292;&amp;#35831;&amp;#31245;&amp;#205">
+<meta property="og:updated_time" content="2016-04-19T13:18:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="写在第一篇博文的话">
-<meta name="twitter:description" content="首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。">
+<meta name="twitter:title" content="NPE缺失异常堆栈信息">
+<meta name="twitter:description" content="问题描述NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：1&amp;#123;&amp;#10;    &amp;#34;msg&amp;#34;:&amp;#34;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#32321;&amp;#24537;&amp;#65292;&amp;#35831;&amp;#31245;&amp;#205">
 
 
 
@@ -86,7 +86,7 @@
   };
 </script>
 
-  <title> 写在第一篇博文的话 | Jberg's Blog </title>
+  <title> NPE缺失异常堆栈信息 | Jberg's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -245,7 +245,7 @@
             
             
               
-                写在第一篇博文的话
+                NPE缺失异常堆栈信息
               
             
           </h1>
@@ -257,8 +257,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-02-22T23:21:40+08:00" content="2016-02-22">
-              2016-02-22
+            <time itemprop="dateCreated" datetime="2016-04-19T21:12:57+08:00" content="2016-04-19">
+              2016-04-19
             </time>
           </span>
 
@@ -271,8 +271,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Default/" itemprop="url" rel="index">
-                    <span itemprop="name">Default</span>
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
                   </a>
                 </span>
 
@@ -287,8 +287,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/02/22/foreword-i-want-to-say/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/foreword-i-want-to-say/" itemprop="commentsCount"></span>
+                <a href="/2016/04/19/lack-of-java-stacktrace/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/19/lack-of-java-stacktrace/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -309,14 +309,19 @@
       
 
       
-        <p>首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。</p>
+        <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;    &#34;msg&#34;:&#34;&#26381;&#21153;&#22120;&#32321;&#24537;&#65292;&#35831;&#31245;&#20505;&#37325;&#35797;&#34;,&#10;    &#34;trace&#34;:&#34;java.lang.NullPointerException&#34;,    &#10;    &#34;code&#34;:1,&#10;    &#34;success&#34;:false,&#10;    &#34;errCode&#34;:&#34;1&#34;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>问题是缺少堆栈信息怎么排除错误呢？因此为了能够定位到错误代码必须让日志打印出这个NPE的堆栈。</p>
 <a id="more"></a>
-<h3 id="充满曲折的博客史"><a href="#充满曲折的博客史" class="headerlink" title="充满曲折的博客史"></a>充满曲折的博客史</h3><p>一直想着要建一个自己的博客写一下东西，最初有这个想法是在2013年，所以就在博客园注册了一个帐号，然后就没有然后了。磨磨蹭蹭到了2014年，自己也有了更多的知识、技术和学习方面的积累，也在偶然的情况看到了别人在github pages上的个人博客，于是花了几天时间探索了一下Jekyll，也在github pages上通过clone的方式部署了自己的个人博客。但是github pages配置复杂，自己当时也没有多大的耐心来为自己的博客配置各种第三方的插件，因此最后也没在这上post过一篇文章。</p>
-<p>一段时间后用上了印象笔记，那时候正是大量接触很多大数据和分布式方面知识和开源系统的时候，于是也就开始在印象笔记里写一些技术知识的学习笔记，写一些心得感悟。但是印象笔记编辑器的使用体验不好，写着写着就发现自己有很多时间花在了文章格式的调整上，所以写东西的速度也将降了下来，大部分想写的技术文章都只列了一个标题（于是传说中的标题党出现了）。断断续续的过程中在知乎上看到了有人推荐马克飞象，一个支持Markdown的印象笔记第三方工具（已收费，但不得不说的是它的使用体验非常棒），所以我从2015年8月份开始使用马克飞象写笔记，然后将写好的笔记同步到印象笔记中，以这种方式稍稍弥补了一些以前的“欠账”。</p>
-<p>后来在看一些大神的博客知道了Octopress（不知道Octopress的请自行去<a href="http://http://octopress.org/" target="_blank" rel="external">Octopress的官网</a>脑补），于是花了几天时间折腾Octopress，并且将自己的博客部署到heroku上，但当我开始去美化和配置一些第三方插件的时候，开始觉得Octopress的主题太少而且不是很符合我喜欢的style（我就是个不是处女座确有着处女座追求的人😉），然后就找到了<a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>和我认为最好的主题<a href="http://theme-next.iissnan.com/" target="_blank" rel="external">NexT</a>，后面则是实用Hexo创建了自己的博客并将博客部署到了github上。</p>
-<h3 id="我会写些什么"><a href="#我会写些什么" class="headerlink" title="我会写些什么"></a>我会写些什么</h3><p>在说了一堆“心酸史”后终于到了最重要的部分：我的博客里会有什么东西？我会写些什么？我的工作领域是大数据和分布式，因此我所写的技术博文大多都是这方面的内容，比如我对Hadoop、Kafka、Spark等开源框架和一些分布式原理的理解；在空闲的时候我常喜欢拿着kindle paper white到麦当劳看书，所看的书的种类也比较多，也想把我看到的好的书和我的一些感悟分享给大家，所以一些博文里会有一些读后感；我也会把我工作生活中的一些感悟写出来，好的和不好的，或其它一些零零碎碎的东西都可能会post到我的博客里。</p>
-<p>我的文笔不好，但相对来说清晰的逻辑和对问题多角度的解析对读者来说更为重要，我会本着这两点去写每一篇文章，但是我的见识也毕竟有限，肯定会有许多模糊的甚至是错误的观点出现在文章里，如果读者有发现希望能够在评论中跟我交流以便我改正自己的错误。</p>
-<p>这些就是我想说的全部，希望我的文章能给大家带来收获。</p>
+<h3 id="为什么堆栈缺失？"><a href="#为什么堆栈缺失？" class="headerlink" title="为什么堆栈缺失？"></a>为什么堆栈缺失？</h3><p>堆栈缺失的原因是JVM在server模式下当一些异常抛出的足够多时，JIT编译器会优化掉异常堆栈。下面的代码可以重现异常堆栈丢失的问题：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExceptionOptimizeTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        exploreNPETraceOptimize();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">exploreNPETraceOptimize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">200000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                ((Object) <span class="keyword">null</span>).getClass();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="comment">//StackTrace的长度从7变为0</span></span><br><span class="line">                System.out.println(e.getStackTrace().length);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>既然NPE堆栈缺失的原因是堆栈信息被JIT编译器优化掉了，那么我们可以通过配置JVM参数-XX:-OmitStackTraceInFastThrow让JIT编译器不要对异常堆栈进行优化。</p>
+<p>官方对-XX:-OmitStackTraceInFastThrow的说明如下：</p>
+<blockquote>
+<p>JVM参数-XX:-OmitStackTraceInFastThrow参数可以关掉JVM对堆栈信息的优化。如果设置了这个参数，那么异常堆栈就能完整输出了。<br>“在服务器中的VM编译器现在提供准确的所有的“冷”内置异常堆栈回溯功能。为了性能考虑，当这些异常被抛出很多次时，这个方法会被重新编译，此后编译器将使用一种更快的抛出异常的方式，即抛出预先分配好的不带堆栈信息的异常。要完全关闭掉这种预分配的异常，就需要使用-XX:-OmitStackTraceInFastThrow参数。“<a href="http://java.sun.com/j2se/1.5.0/relnotes.html" target="_blank" rel="external">http://java.sun.com/j2se/1.5.0/relnotes.html</a></p>
+</blockquote>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="http://jawspeak.com/2010/05/26/hotspot-caused-exceptions-to-lose-their-stack-traces-in-production-and-the-fix/" target="_blank" rel="external">Hotspot caused exceptions to lose their stack traces in production – and the fix</a></li>
+<li><a href="http://stackoverflow.com/questions/1142007/why-does-log4j-disable-stack-trace-after-lots-of-repetition-of-the-same-except" target="_blank" rel="external">Why does log4j disable stack trace after (lots of) repetition of the same exception?</a></li>
+</ol>
 
       
     </div>
@@ -325,9 +330,13 @@
       
         <div class="post-tags">
           
-            <a href="/tags/关于/" rel="tag">#关于</a>
+            <a href="/tags/JVM/" rel="tag">#JVM</a>
           
-            <a href="/tags/前言/" rel="tag">#前言</a>
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/NullPointerException/" rel="tag">#NullPointerException</a>
+          
+            <a href="/tags/stacktrace/" rel="tag">#stacktrace</a>
           
         </div>
       
@@ -336,13 +345,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/03/03/jvm-gc-algorithms/" rel="next" title="Java虚拟机回收算法">
+                <i class="fa fa-chevron-left"></i> Java虚拟机回收算法
+              </a>
+            
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/03/01/java-equals-and-hashcode/" rel="prev" title="Java中的equals和hashCode">
-                Java中的equals和hashCode <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -357,10 +366,10 @@
 
     <div class="post-spread">
       
-        <div class="ds-share flat" data-thread-key="2016/02/22/foreword-i-want-to-say/"
-     data-title="写在第一篇博文的话"
+        <div class="ds-share flat" data-thread-key="2016/04/19/lack-of-java-stacktrace/"
+     data-title="NPE缺失异常堆栈信息"
      data-content=""
-     data-url="http://www.jberg.xyz/2016/02/22/foreword-i-want-to-say/">
+     data-url="http://www.jberg.xyz/2016/04/19/lack-of-java-stacktrace/">
   <div class="ds-share-inline">
     <ul  class="ds-share-icons-16">
 
@@ -387,8 +396,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/02/22/foreword-i-want-to-say/"
-           data-title="写在第一篇博文的话" data-url="http://www.jberg.xyz/2016/02/22/foreword-i-want-to-say/">
+      <div class="ds-thread" data-thread-key="2016/04/19/lack-of-java-stacktrace/"
+           data-title="NPE缺失异常堆栈信息" data-url="http://www.jberg.xyz/2016/04/19/lack-of-java-stacktrace/">
       </div>
     
   </div>
@@ -522,7 +531,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#充满曲折的博客史"><span class="nav-number">1.</span> <span class="nav-text">充满曲折的博客史</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我会写些什么"><span class="nav-number">2.</span> <span class="nav-text">我会写些什么</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题描述"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么堆栈缺失？"><span class="nav-number">2.</span> <span class="nav-text">为什么堆栈缺失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决方式"><span class="nav-number">3.</span> <span class="nav-text">解决方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">

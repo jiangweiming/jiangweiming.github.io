@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.jberg.xyz/"/>
-  <updated>2016-03-01T11:39:24.000Z</updated>
+  <updated>2016-04-19T13:18:05.000Z</updated>
   <id>http://www.jberg.xyz/</id>
   
   <author>
@@ -14,6 +14,201 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>NPE缺失异常堆栈信息</title>
+    <link href="http://www.jberg.xyz/2016/04/19/lack-of-java-stacktrace/"/>
+    <id>http://www.jberg.xyz/2016/04/19/lack-of-java-stacktrace/</id>
+    <published>2016-04-19T13:12:57.000Z</published>
+    <updated>2016-04-19T13:18:05.000Z</updated>
+    
+    <content type="html">&lt;h3 id=&quot;问题描述&quot;&gt;&lt;a href=&quot;#问题描述&quot; class=&quot;headerlink&quot; title=&quot;问题描述&quot;&gt;&lt;/a&gt;问题描述&lt;/h3&gt;&lt;p&gt;NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#123;&amp;#10;    &amp;#34;msg&amp;#34;:&amp;#34;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#32321;&amp;#24537;&amp;#65292;&amp;#35831;&amp;#31245;&amp;#20505;&amp;#37325;&amp;#35797;&amp;#34;,&amp;#10;    &amp;#34;trace&amp;#34;:&amp;#34;java.lang.NullPointerException&amp;#34;,    &amp;#10;    &amp;#34;code&amp;#34;:1,&amp;#10;    &amp;#34;success&amp;#34;:false,&amp;#10;    &amp;#34;errCode&amp;#34;:&amp;#34;1&amp;#34;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;问题是缺少堆栈信息怎么排除错误呢？因此为了能够定位到错误代码必须让日志打印出这个NPE的堆栈。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;为什么堆栈缺失？&quot;&gt;&lt;a href=&quot;#为什么堆栈缺失？&quot; class=&quot;headerlink&quot; title=&quot;为什么堆栈缺失？&quot;&gt;&lt;/a&gt;为什么堆栈缺失？&lt;/h3&gt;&lt;p&gt;堆栈缺失的原因是JVM在server模式下当一些异常抛出的足够多时，JIT编译器会优化掉异常堆栈。下面的代码可以重现异常堆栈丢失的问题：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ExceptionOptimizeTest&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(String[] args)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        exploreNPETraceOptimize();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;exploreNPETraceOptimize&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;number&quot;&gt;200000&lt;/span&gt;; i++) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                ((Object) &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;).getClass();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &amp;#125; &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt; (Exception e) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                &lt;span class=&quot;comment&quot;&gt;//StackTrace的长度从7变为0&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                System.out.println(e.getStackTrace().length);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&quot;解决方式&quot;&gt;&lt;a href=&quot;#解决方式&quot; class=&quot;headerlink&quot; title=&quot;解决方式&quot;&gt;&lt;/a&gt;解决方式&lt;/h3&gt;&lt;p&gt;既然NPE堆栈缺失的原因是堆栈信息被JIT编译器优化掉了，那么我们可以通过配置JVM参数-XX:-OmitStackTraceInFastThrow让JIT编译器不要对异常堆栈进行优化。&lt;/p&gt;
+&lt;p&gt;官方对-XX:-OmitStackTraceInFastThrow的说明如下：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;JVM参数-XX:-OmitStackTraceInFastThrow参数可以关掉JVM对堆栈信息的优化。如果设置了这个参数，那么异常堆栈就能完整输出了。&lt;br&gt;“在服务器中的VM编译器现在提供准确的所有的“冷”内置异常堆栈回溯功能。为了性能考虑，当这些异常被抛出很多次时，这个方法会被重新编译，此后编译器将使用一种更快的抛出异常的方式，即抛出预先分配好的不带堆栈信息的异常。要完全关闭掉这种预分配的异常，就需要使用-XX:-OmitStackTraceInFastThrow参数。“&lt;a href=&quot;http://java.sun.com/j2se/1.5.0/relnotes.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://java.sun.com/j2se/1.5.0/relnotes.html&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;http://jawspeak.com/2010/05/26/hotspot-caused-exceptions-to-lose-their-stack-traces-in-production-and-the-fix/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hotspot caused exceptions to lose their stack traces in production – and the fix&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/1142007/why-does-log4j-disable-stack-trace-after-lots-of-repetition-of-the-same-except&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why does log4j disable stack trace after (lots of) repetition of the same exception?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;问题描述&quot;&gt;&lt;a href=&quot;#问题描述&quot; class=&quot;headerlink&quot; title=&quot;问题描述&quot;&gt;&lt;/a&gt;问题描述&lt;/h3&gt;&lt;p&gt;NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#123;&amp;#10;    &amp;#34;msg&amp;#34;:&amp;#34;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#32321;&amp;#24537;&amp;#65292;&amp;#35831;&amp;#31245;&amp;#20505;&amp;#37325;&amp;#35797;&amp;#34;,&amp;#10;    &amp;#34;trace&amp;#34;:&amp;#34;java.lang.NullPointerException&amp;#34;,    &amp;#10;    &amp;#34;code&amp;#34;:1,&amp;#10;    &amp;#34;success&amp;#34;:false,&amp;#10;    &amp;#34;errCode&amp;#34;:&amp;#34;1&amp;#34;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;问题是缺少堆栈信息怎么排除错误呢？因此为了能够定位到错误代码必须让日志打印出这个NPE的堆栈。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://www.jberg.xyz/categories/Java/"/>
+    
+    
+      <category term="JVM" scheme="http://www.jberg.xyz/tags/JVM/"/>
+    
+      <category term="Java" scheme="http://www.jberg.xyz/tags/Java/"/>
+    
+      <category term="NullPointerException" scheme="http://www.jberg.xyz/tags/NullPointerException/"/>
+    
+      <category term="stacktrace" scheme="http://www.jberg.xyz/tags/stacktrace/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java虚拟机回收算法</title>
+    <link href="http://www.jberg.xyz/2016/03/03/jvm-gc-algorithms/"/>
+    <id>http://www.jberg.xyz/2016/03/03/jvm-gc-algorithms/</id>
+    <published>2016-03-02T16:14:55.000Z</published>
+    <updated>2016-04-19T15:16:30.000Z</updated>
+    
+    <content type="html">&lt;h3 id=&quot;虚拟机中可回收区域&quot;&gt;&lt;a href=&quot;#虚拟机中可回收区域&quot; class=&quot;headerlink&quot; title=&quot;虚拟机中可回收区域&quot;&gt;&lt;/a&gt;虚拟机中可回收区域&lt;/h3&gt;&lt;p&gt;Java虚拟机内部结构如&lt;a href=&quot;https://app.yinxiang.com/shard/s43/nl/7666035/8b19410a-ac1c-4beb-a8da-275679f2c5d3&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《Java虚拟机及其体系结构》&lt;/a&gt;所述，主要包括堆、方法区、Java虚拟机栈、本地方法栈、程序计数器这几个区域，从垃圾回收角度来看，这几个区域可以归为以下两类：&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h4 id=&quot;可确定的回收区&quot;&gt;&lt;a href=&quot;#可确定的回收区&quot; class=&quot;headerlink&quot; title=&quot;可确定的回收区&quot;&gt;&lt;/a&gt;可确定的回收区&lt;/h4&gt;&lt;p&gt;程序计数器、Java虚拟机栈、本地方法栈是线程私有的区域，其上分配的资源随线程运行而存在，随线程终止而消亡，如Java虚拟机栈上的栈帧随着线程执行过程中方法的进入和退出，其上的栈帧也随之入栈和出栈并且栈帧的大小也是确定的（当类结构确定下来时，类中某一方法的栈帧大小也是确定的）。由于这部分区域内存的分配和回收是确定的，随着线程的生灭而分配和释放，因此这部分区域的内存回收不需要过多考虑。&lt;/p&gt;
+&lt;h4 id=&quot;运行时回收区&quot;&gt;&lt;a href=&quot;#运行时回收区&quot; class=&quot;headerlink&quot; title=&quot;运行时回收区&quot;&gt;&lt;/a&gt;运行时回收区&lt;/h4&gt;&lt;p&gt;相比较于Java虚拟机栈这样的可确定的回收区，堆和方法区是不确定的，因为随着Java虚拟机加载的类的不同或是程序在执行过程中所走过的不同的程序逻辑分支，虚拟机在堆和方法区上划分的内存是不一样的。由于这部分区域是只有在运行期间才知道要加载哪些类、创建哪些对象，因而它们的内存分配和回收是动态的，从而堆和方法区是垃圾回收的主要区域。&lt;/p&gt;
+&lt;h3 id=&quot;什么时候回收对象&quot;&gt;&lt;a href=&quot;#什么时候回收对象&quot; class=&quot;headerlink&quot; title=&quot;什么时候回收对象&quot;&gt;&lt;/a&gt;什么时候回收对象&lt;/h3&gt;&lt;p&gt;在堆（方法区上的常量回收和类的卸载本文不做详述）上存放着Java中所有的对象实例，垃圾回收的目标就是这些对象，那什么对象会被回收？对这个问题可以确定的答案是“死亡”的对象会被回收，因此如何判断对象已经“死亡”成为垃圾回收的第一步。以下是两种判断对象是否“存活”或“死亡”的算法：&lt;/p&gt;
+&lt;h4 id=&quot;引用计数算法&quot;&gt;&lt;a href=&quot;#引用计数算法&quot; class=&quot;headerlink&quot; title=&quot;引用计数算法&quot;&gt;&lt;/a&gt;引用计数算法&lt;/h4&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/obj_ref_counter.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;&lt;br&gt;如上图所示，&lt;strong&gt;引用计数算法（Reference Counting）的逻辑是：被引用的对象内部有一个引用计数器counter，如图中对象A，当对象A被对象B引用时counter加1，对象A再被对象C引用counter变为2，依次类推；而当对象B或C不再引用对象A时，对象A的引用计数器counter则减1，直到没有一个对象引用A，此时counter的值为0，同时也意味着对象A不在被使用。&lt;/strong&gt;&lt;br&gt;&lt;br&gt;引用计数算法突出的优点是实现简单、判断效率高，但它的缺点也很突出，即是引用计数算法无法解决对象之间循环依赖问题。如下示意图所示，除了对象A和对象B之间的相互依赖，没有其他任何对象再依赖它们，因此事实上对象A和对象B已经不可能在被使用，但由于A和B间的相互依赖使得它们各自的引用计数器counter不为0，因而导致对象A和对象B无法被收集器回收。&lt;br&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/obj_ref_cycle.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;
+
+&lt;h4 id=&quot;根搜索算法&quot;&gt;&lt;a href=&quot;#根搜索算法&quot; class=&quot;headerlink&quot; title=&quot;根搜索算法&quot;&gt;&lt;/a&gt;根搜索算法&lt;/h4&gt;&lt;p&gt;针对引用计数器算法的缺点，根搜索算法（GC Roots Tracing）被提出且被广泛应用。如下图所示，&lt;strong&gt;根搜索算法的基本逻辑是：堆中有一系列被称为GC Roots的节点，以这些节点为起始向下搜索，搜索走过的路径称为引用链（Reference Chain），如图中GC Roots –&amp;gt; A和GC Roots –&amp;gt; B –&amp;gt; C；当对象通过引用链不能关联到GC Roots（即对象到GC Roots不可达），意味着这些对象将不再使用，如图中D、E、F三个节点，此时即使D、E、F间有循环引用，根搜索算法依然能够判断出这三个对象是不再使用的对象。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/obj_ref_root.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;&lt;br&gt;对于GC Roots，Java中有以下几种对象可做为GC Roots：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;虚拟机栈帧中（本地变量表）的引用的对象&lt;/li&gt;
+&lt;li&gt;类中静态属性引用的对象&lt;/li&gt;
+&lt;li&gt;方法区中的常量引用的对象&lt;/li&gt;
+&lt;li&gt;本地方法栈中JNI的引用的对象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;如何回收对象&quot;&gt;&lt;a href=&quot;#如何回收对象&quot; class=&quot;headerlink&quot; title=&quot;如何回收对象&quot;&gt;&lt;/a&gt;如何回收对象&lt;/h3&gt;&lt;p&gt;通过引用计数算法或根搜索算法判断出哪些对象“死亡”后，接来下Java虚拟机需要做的是怎么去回收掉这些对象，释放内存资源。以下所述的算法即是常用的几种垃圾回收算法：&lt;/p&gt;
+&lt;h4 id=&quot;标记清除算法&quot;&gt;&lt;a href=&quot;#标记清除算法&quot; class=&quot;headerlink&quot; title=&quot;标记清除算法&quot;&gt;&lt;/a&gt;标记清除算法&lt;/h4&gt;&lt;p&gt;标记清除算法（Mark-Sweep）算法是最基础的一种垃圾回收算法，其他的回收算法都是由它改进而来，如它的名称一样，&lt;strong&gt;算法分为标记和清除两个阶段：首先标记需要被回收的对象，待标记完成后统一将已标记对象清除；标记阶段的过程即是在根搜索算法中的搜索过程基础上对需要回收的对象进行标记的过程&lt;/strong&gt;，算法回收前后内存变化情况如下图所示。&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/mark-sweep.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;&lt;br&gt;标记清除算法的缺点一个是标记清除过程的效率不高；另一个就是会产生内存碎片，使得内存中没有连续的内存来满足大块的内存分配请求。&lt;/p&gt;
+&lt;h4 id=&quot;复制算法&quot;&gt;&lt;a href=&quot;#复制算法&quot; class=&quot;headerlink&quot; title=&quot;复制算法&quot;&gt;&lt;/a&gt;复制算法&lt;/h4&gt;&lt;p&gt;复制算法（Copying）是在标记清除算法基础上所提出来的一种解决标记清除效率不高的算法。如下图所示，&lt;strong&gt;复制算法将可用的内存空间均等的分为两个块，每次只在其中一块上使用内存，另一块则作为保留区域；当被使用的那块用完时，则将仍存活的对象复制到作为保留区域的块中，然后将之前块上的内存空间一次性清理掉。&lt;/strong&gt;对比标记清除算法，复制算法只需要在一块（一半的内存空间）内存区域上进行垃圾回收，由于每次分配内存均是在连续的内存上操作，所以只需要移动堆顶指针按顺序分配空闲内存空间即可完成内存分配，不再需要考虑内存碎片化问题。&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/copying.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;&lt;br&gt;复制算法也不是完美的，很明显的一个问题是它对内存的均分且每次只使用均分后的一块内存使得事实上的可分配内存只有可用内存的一半，因此在实际使用中划分的比例并非1 : 1，比如HotSpot虚拟机中的新生代（使用的就是复制回收算法）中Eden区与Survivor区（有两块，分别是To区和From区）默认比例是8 : 1，也就是Eden : To : From = 8 : 1 : 1，HotSpot虚拟机中每次可用于分配新对象的内存空间是Eden区加一块Survivor区，另一Survivor区作为保留区，这样意味着有90%的内存空间可用于分配对象。&lt;/p&gt;
+&lt;p&gt;HotSpot虚拟机新生代这样的划分是基于对象98%是“朝生夕死”的研究结论而设定的，绝大部分情况下这样的划分是非常有效的，但是不可否认的是我们所开发的程序中有可能出现大量对象驻留内存的情况（比如具有缓存功能的程序），此时仅10%的保留区是不足以存放这些回收后仍然存活的对象的，因而需要一种保证机制来解决这种情况，年老代就是用来存放大量常驻内存对象的区域。&lt;/p&gt;
+&lt;h4 id=&quot;标记整理算法&quot;&gt;&lt;a href=&quot;#标记整理算法&quot; class=&quot;headerlink&quot; title=&quot;标记整理算法&quot;&gt;&lt;/a&gt;标记整理算法&lt;/h4&gt;&lt;p&gt;在上文中提到了HotSpot虚拟机的年老代存放的是常驻内存的对象，显然这些长时间存活的对象并不适用于复制算法（对象存活率过高导致需要执行大量复制操作），基于这种情况有人提出了标记整理算法（Mark-Compact）。&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img src=&quot;/uploads/jvm-gc-algorithms/mark-compact.png&quot; alt=&quot;Alt text&quot;&gt;&lt;/center&gt;&lt;br&gt;如上图所示，&lt;strong&gt;标记整理算法与标记清除算法十分类似，它的标记过程与标记清除算法是一样的，所不同的是对比后者的直接清除被标记对象，标记整理算法是先将存活对象移动到内存区域的一端，然后才清理掉端边界以外的所有内存。&lt;/strong&gt;&lt;/p&gt;
+&lt;h4 id=&quot;分代收集算法&quot;&gt;&lt;a href=&quot;#分代收集算法&quot; class=&quot;headerlink&quot; title=&quot;分代收集算法&quot;&gt;&lt;/a&gt;分代收集算法&lt;/h4&gt;&lt;p&gt;分代收集算法（Generational Collection）不是一种新的算法，它针对对象收集及其存活周期不同等特点将内存分为几个区域，不同的区域使用不同的回收算法，比如前面提到的HotSpot虚拟机将内存分为新生代和年老代，新生代使用的是复制算法，年老代使用的是标记整理算法。&lt;/p&gt;
+&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;《深入理解Java虚拟机-JVM高级特性与最佳实践》&lt;/li&gt;
+&lt;li&gt;《深入Java虚拟机》 第二版&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;虚拟机中可回收区域&quot;&gt;&lt;a href=&quot;#虚拟机中可回收区域&quot; class=&quot;headerlink&quot; title=&quot;虚拟机中可回收区域&quot;&gt;&lt;/a&gt;虚拟机中可回收区域&lt;/h3&gt;&lt;p&gt;Java虚拟机内部结构如&lt;a href=&quot;https://app.yinxiang.com/shard/s43/nl/7666035/8b19410a-ac1c-4beb-a8da-275679f2c5d3&quot;&gt;《Java虚拟机及其体系结构》&lt;/a&gt;所述，主要包括堆、方法区、Java虚拟机栈、本地方法栈、程序计数器这几个区域，从垃圾回收角度来看，这几个区域可以归为以下两类：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="JVM" scheme="http://www.jberg.xyz/categories/JVM/"/>
+    
+    
+      <category term="Garbage Collector" scheme="http://www.jberg.xyz/tags/Garbage-Collector/"/>
+    
+      <category term="JVM" scheme="http://www.jberg.xyz/tags/JVM/"/>
+    
+      <category term="Java" scheme="http://www.jberg.xyz/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java中的equals和hashCode</title>
+    <link href="http://www.jberg.xyz/2016/03/01/java-equals-and-hashcode/"/>
+    <id>http://www.jberg.xyz/2016/03/01/java-equals-and-hashcode/</id>
+    <published>2016-03-01T12:14:05.000Z</published>
+    <updated>2016-03-01T12:21:52.000Z</updated>
+    
+    <content type="html">&lt;h3 id=&quot;说明&quot;&gt;&lt;a href=&quot;#说明&quot; class=&quot;headerlink&quot; title=&quot;说明&quot;&gt;&lt;/a&gt;说明&lt;/h3&gt;&lt;p&gt;本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;equals和hashCode&quot;&gt;&lt;a href=&quot;#equals和hashCode&quot; class=&quot;headerlink&quot; title=&quot;equals和hashCode&quot;&gt;&lt;/a&gt;equals和hashCode&lt;/h3&gt;&lt;h4 id=&quot;equals应遵循的约定&quot;&gt;&lt;a href=&quot;#equals应遵循的约定&quot; class=&quot;headerlink&quot; title=&quot;equals应遵循的约定&quot;&gt;&lt;/a&gt;equals应遵循的约定&lt;/h4&gt;&lt;blockquote&gt;
+&lt;p&gt; &lt;strong&gt;Object类中equals方法的注释：&lt;/strong&gt;Indicates whether some other object is “equal to” this one. &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;如引用所述，Java对象中的equals方法（或是从父类继承来的）的主要作用是用来&lt;strong&gt;比较两个对象是否相等&lt;/strong&gt;，相等则返回true，否则返回false。&lt;/p&gt;
+&lt;p&gt;equals方法的实现应当遵循以下约定（这里用“约定”这个词是应为这些规则不是强制的，但是如果equals的实现不遵循这些约定，Java将不能保证对象的预期行为的正确性）：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;自等性（reflexive）&lt;/strong&gt; – 对于任何非null引用x，x.equals(x)应返回true。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;对称性（symmetric）&lt;/strong&gt; – 对于任何非null引用x和y，当且仅当y.equals(x)返回true时，x.equals(y)也必须返回true。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;传递性（transitive）&lt;/strong&gt; – 对于任何非null引用x、y、z，如果x.equals(y)返回true且y.equals(z)返回true，则x.equals(z)也应返回true。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;一致性（consistent）&lt;/strong&gt; – 对于任何非null引用x和y，在实现equals方法的属性没有变更的情况下，对x.equals(y)的多次调用都应一致的返回true或者一致的返回false。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;null比较（null comparison）&lt;/strong&gt; – 对于任何非null的引用x，x.equals(null)必须返回false。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;java.lang.Object类的equals方法的实现是比较两个对象是否是同一对象（其实质是比较两个对象在内存中的地址是否一样），JDK源代码如下：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Object obj)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;comment&quot;&gt;// 比较两者是否为同一对象&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt; == obj);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;hashCode应遵循的约定&quot;&gt;&lt;a href=&quot;#hashCode应遵循的约定&quot; class=&quot;headerlink&quot; title=&quot;hashCode应遵循的约定&quot;&gt;&lt;/a&gt;hashCode应遵循的约定&lt;/h4&gt;&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Object类中hashCode方法的注释：&lt;/strong&gt;Returns a hash code value for the object. This method is supported for the benefit of hash tables such as those provided by java.util.HashMap.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;如引用所述，hashCode的方法返回一个对象的hash值，主要作用就是&lt;strong&gt;使得对象能够成为哈希表（Map）的key或者散列集（Set）的成员&lt;/strong&gt;，典型的是HashMap。&lt;/p&gt;
+&lt;p&gt;与equals方法类似hashCode方法的实现也要遵循如下约定：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在Java Application的某次运行过程中，在实现对象的equals方法的属性没有变更的情况下，任何时候对同一个对象调用hashCode方法都应一致的返回同一个integer值。&lt;/li&gt;
+&lt;li&gt;如果两个对象相等（即equals返回true），那么两个对象的hashCode方法必须返回同样的integer值。&lt;/li&gt;
+&lt;li&gt;如果两个对象不相等（即equals返回false），那么这两个对象的hashCode方法不需要返回不同的integer值。&lt;strong&gt;但应该注意的是两个不同对象的hashCode方法返回不同的值能够显著提高哈希表的性能。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;java.lang.Object类的hashCode方法是一个native方法，它的实现是将对象在内存中的地址转成一个integer，从而实现不同对象返回不同的integer值，JDK源代码如下：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// native方法&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;native&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;hashCode&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;equals和hashCode的关系&quot;&gt;&lt;a href=&quot;#equals和hashCode的关系&quot; class=&quot;headerlink&quot; title=&quot;equals和hashCode的关系&quot;&gt;&lt;/a&gt;equals和hashCode的关系&lt;/h4&gt;&lt;p&gt;上面两个小节是对equals和hashCode的说明，通过对比equals的说明和约定无疑使hashCode的约定更易于理解，hashCode应遵循的约定说明了equals方法和hashCode方法两个非常重要的关系：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;equals和hashCode的一致性&lt;/strong&gt; – 在Java Application的某次运行过程中，两个相等的（equals为true）对象的hashCode方法不论调用多少次都应返回同样的hash值。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;unequals对象不强制要求hashCode的不一致&lt;/strong&gt; – 这一点是第一点的补充，它要表达的是相等的对象必须返回同样的hash值，但是不相等的对象不需要返回不同的hash值（但若返回不同的hash值能够提高对象在哈希表中的存取性能）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;正确的实现equals和hashCode&quot;&gt;&lt;a href=&quot;#正确的实现equals和hashCode&quot; class=&quot;headerlink&quot; title=&quot;正确的实现equals和hashCode&quot;&gt;&lt;/a&gt;正确的实现equals和hashCode&lt;/h3&gt;&lt;h4 id=&quot;实现好坏的标准&quot;&gt;&lt;a href=&quot;#实现好坏的标准&quot; class=&quot;headerlink&quot; title=&quot;实现好坏的标准&quot;&gt;&lt;/a&gt;实现好坏的标准&lt;/h4&gt;&lt;p&gt;在说明如何正确的实现equals和hashCode的方法之前，我们需要有一个判断标准，满足什么条件下这两个方法的实现是正确且高效的。在我看来这个标准主要有两点：一是equals和hashCode的实现必须要满足上述所说的关于两者的约定；二是equals不等的对象的hashCode要尽可能的产生唯一的hash值以实现对象在哈希表中的高效存取。&lt;/p&gt;
+&lt;h4 id=&quot;一个正确的例子&quot;&gt;&lt;a href=&quot;#一个正确的例子&quot; class=&quot;headerlink&quot; title=&quot;一个正确的例子&quot;&gt;&lt;/a&gt;一个正确的例子&lt;/h4&gt;&lt;p&gt;对equals和hashCode的正确实现应该使得这两个方法满足上文所说的关于两者的约定，下面是一个正确实现这两个 方法的名为Test的类：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Test&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; num;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String value;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; String unmeaningful;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;equals&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Object obj)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt; == obj) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (obj == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt; || obj.getClass() != &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.getClass()) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        Test that = (Test) obj;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; num == that.num &amp;amp;&amp;amp; (value == that.value || (value != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt; &amp;amp;&amp;amp; value.equals(that.value)));&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;hashCode&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; hash = &lt;span class=&quot;number&quot;&gt;7&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        hash = &lt;span class=&quot;number&quot;&gt;31&lt;/span&gt; * hash + num;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        hash = &lt;span class=&quot;number&quot;&gt;31&lt;/span&gt; * hash + (value == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt; ? &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; : value.hashCode());  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; hash;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt; 例子中Test有三个属性int类型的num、String类型的value、String类型的unmeaningful，其中属性num和value作为判断对象是否相等的属性，也参与hashCode的计算。&lt;/p&gt;
+&lt;h4 id=&quot;equals的实现guideline&quot;&gt;&lt;a href=&quot;#equals的实现guideline&quot; class=&quot;headerlink&quot; title=&quot;equals的实现guideline&quot;&gt;&lt;/a&gt;equals的实现guideline&lt;/h4&gt;&lt;p&gt;首先来看一下Test类的equals方法：在Line 7先将引用obj和this进行比较，如果两者指代的是同一个对象，equals方法能够立即返回；Line 10首先判断obj是否为null，根据equals约定中的null比较原则若obj为null这返回false，如果obj为不null则要比较obj对象和this是否是同一个类，其中有一种使用instanceof的错误实现 &lt;code&gt;if (!(obj instanceof Test)) return false;&lt;/code&gt;， 当obj为类Test的子类的实例时，&lt;code&gt;obj instanceof Test&lt;/code&gt;返回true，这样的实现可能会违反equals的对称性（symmetric）约定；经过前面的判断obj肯定是Test类的实例，Line 13将obj转换成Test，Line 14分别对obj和this的属性num和value进行相等性比较。&lt;/p&gt;
+&lt;p&gt;通过Test类的例子，可以总结出正确实现equals的一般模式：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;先比较参数和当前对象this是否指向同一对象&lt;/li&gt;
+&lt;li&gt;判断参数不为null并且和当前对象是同一类型，不要使用instanceof来实现，而是使用&lt;code&gt;if (obj == null || obj.getClass() != this.getClass()) return false;&lt;/code&gt;来判断&lt;/li&gt;
+&lt;li&gt;将equals方法参数转换成当前类型&lt;/li&gt;
+&lt;li&gt;比较参数对象和当前对象中有意义或有效的属性是否相等，对于原生类型的变量通过必要的转换后使用操作符 == 判断是否相等（必要的转换如float类型变量通过Float.floatToIntBits或double类型的变量通过Double.doubleToIntBits转换后在比较，避免浮点数精度丢失产生的影响）；对于引用类型则通过调用它们的equals方法来比较&lt;/li&gt;
+&lt;li&gt;检查equals方法的实现看看是否满足equals所要遵循的约定&lt;/li&gt;
+&lt;li&gt;重写equals方法的同时一定要重写hashCode方法&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&quot;hashCode的实现guideline&quot;&gt;&lt;a href=&quot;#hashCode的实现guideline&quot; class=&quot;headerlink&quot; title=&quot;hashCode的实现guideline&quot;&gt;&lt;/a&gt;hashCode的实现guideline&lt;/h4&gt;&lt;p&gt;Test类中的hashCode方法：Line 18选择一个初始值7并赋值给变量hash；Line 19选择质数31作为因子并赋值给变量prime；Line 20和Line 21使用类属性num和value计算hash值，对于属性value在调用它的hashCode方法之前还必须判断它是否为null。Test类的hashCode方法的实现遵从hashCode实现约定，并且能够保证equals为true的两对象hashCode方法的多次调用会返回一致的hash值。&lt;/p&gt;
+&lt;p&gt;在hashCode方法的实现中，原生类型的变量在参与计算hash值时，可以经过转换后直接参与计算，如float类型变量通过Float.floatToInt或者double类型的变量通过Double.doubleToInt转换后计算hash值，由于hashCode的返回值是int类型，所以long类型的变量也必须转换成int值；而对于其他引用类型的对象，则需要调用对象自己的hashCode方法来计算hash值（当然不能在这个对象为null的时候调用它的hashCode方法）。&lt;/p&gt;
+&lt;p&gt;好的hashCode方法的实现除了遵循hashCode的约定外，还应能够实现方法计算出来的hash的分布尽可能的平均，一个好的hashCode方法的实现可以如下guideline：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;为变量hash赋予一个非零的int常量（比如Test类hashCode方法中的int值7）&lt;/li&gt;
+&lt;li&gt;在参与equals方法实现中的有意思的变量也必须参与hash值的计算，对于每一不同类型的变量var计算它的hash值var_code：&lt;ul&gt;
+&lt;li&gt;如果var是byte、short、int、char类型，则&lt;code&gt;var_code = (int)var;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;如果var是long类型，则&lt;code&gt;var_code = (int)(var ^ (var &amp;gt;&amp;gt;&amp;gt; 32));&lt;/code&gt;（Long.hashCode的实现）&lt;/li&gt;
+&lt;li&gt;如果var是float类型，则&lt;code&gt;var_code = Float.floatToIntBits(var);&lt;/code&gt;（Float.hashCode的实现）&lt;/li&gt;
+&lt;li&gt;如果var是double类型，则&lt;code&gt;long bits = Double.doubleToLongBits(var); var_code = (int)(bits ^ (bits &amp;gt;&amp;gt;&amp;gt; 32));&lt;/code&gt;（Double.hashCode的实现）&lt;/li&gt;
+&lt;li&gt;如果var是boolean类型，则&lt;code&gt;var_code = var ? 1 : 0&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;如果var是引用类型，则&lt;code&gt;var_code = (null == var) ? 0 : var.hashCode();&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;将变量var在上一步中得出的var_code与变量hash相结合，以代码&lt;code&gt;hash = 31 * hash + var_code&lt;/code&gt;的方式计算出新的变量值&lt;/li&gt;
+&lt;li&gt;对所有有意义的变量重复上面第二和第三个步骤，并最终返回变量hash作为hashCode方法的返回值&lt;/li&gt;
+&lt;li&gt;检查hashCode方法的实现，确保该实现没有违背hashCode方法的约定&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&quot;为什么hashCode中使用31作为因子&quot;&gt;&lt;a href=&quot;#为什么hashCode中使用31作为因子&quot; class=&quot;headerlink&quot; title=&quot;为什么hashCode中使用31作为因子&quot;&gt;&lt;/a&gt;为什么hashCode中使用31作为因子&lt;/h4&gt;&lt;p&gt;在Test类的hashCode方法的实现中变量hash的每一次计算都是通过语句&lt;code&gt;hash = 31 * hash + var_code&lt;/code&gt;，另外在java.lang.String类的hashCode方法的实现也使用了31这个数：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;hashCode&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; h = hash;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (h == &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt; &amp;amp;&amp;amp; value.length &amp;gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;char&lt;/span&gt; val[] = value;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; value.length; i++) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            h = &lt;span class=&quot;number&quot;&gt;31&lt;/span&gt; * h + val[i];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        hash = h;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; h;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;对于31这个数据的使用，在《Effective Java》的第三章关于有说明，其大概意思是：首先31是质数，使用31作为因子能够让hash code的分布尽量均匀；二是31 &lt;em&gt; h能够转换成移位和一个减1计算，即`31 &lt;/em&gt; h = (h &amp;lt;&amp;lt; 5) - 1`，计算机对移位操作有优化，在比较旧的机型上性能较好（事实上这一点在现在来说已经不是很明显，所以可以选择一个较大的质数来替换31以实现更好的hash分布，比如524287 等）。&lt;/p&gt;
+&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;java.lang.Object类中equals和hashcode方法的注释&lt;/li&gt;
+&lt;li&gt;Java.lang.String/Long/Float/Integer/Double中的hashCode方法&lt;/li&gt;
+&lt;li&gt;Technofundo上的文章&lt;a href=&quot;http://technofundo.com/tech/java/equalhash.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《Equals and Hash Code》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CSDN上的文章&lt;a href=&quot;http://blog.csdn.net/steveguoshao/article/details/12576849&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《为什么hashcode定义中使用31这个数？》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;StackOverflow问题&lt;a href=&quot;http://stackoverflow.com/questions/299304/why-does-javas-hashcode-in-string-use-31-as-a-multiplier%EF%BC%89&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《Why does Java’s hashCode() in String use 31 as a multiplier?》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;StackOverflow问题&lt;a href=&quot;http://stackoverflow.com/questions/1835976/what-is-a-sensible-prime-for-hashcode-calculation&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《What is a sensible prime for hashcode calculation?》&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;并发编程网上的文章&lt;a href=&quot;http://ifeve.com/hashcode-method-performance-tuning/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;《hashcode()方法的性能优化》&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;说明&quot;&gt;&lt;a href=&quot;#说明&quot; class=&quot;headerlink&quot; title=&quot;说明&quot;&gt;&lt;/a&gt;说明&lt;/h3&gt;&lt;p&gt;本文的目的是说明java.lang.Object类中equals和hashcode方法的作用及两者之间的关系，同时通过分析JDK中部分类的equals和hashcode的实现总结出实现这两个方法的正确方式和注意事项， 文章中所引入的JDK源代码和注释使用的均是Java 8的源代码。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://www.jberg.xyz/categories/Java/"/>
+    
+    
+      <category term="equals" scheme="http://www.jberg.xyz/tags/equals/"/>
+    
+      <category term="hashcode" scheme="http://www.jberg.xyz/tags/hashcode/"/>
+    
+      <category term="java" scheme="http://www.jberg.xyz/tags/java/"/>
+    
+  </entry>
   
   <entry>
     <title>写在第一篇博文的话</title>

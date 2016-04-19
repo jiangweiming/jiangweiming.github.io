@@ -262,8 +262,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/02/22/foreword-i-want-to-say/" itemprop="url">
-                  写在第一篇博文的话
+                <a class="post-title-link" href="/2016/04/19/lack-of-java-stacktrace/" itemprop="url">
+                  NPE缺失异常堆栈信息
                 </a>
               
             
@@ -276,8 +276,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-02-22T23:21:40+08:00" content="2016-02-22">
-              2016-02-22
+            <time itemprop="dateCreated" datetime="2016-04-19T21:12:57+08:00" content="2016-04-19">
+              2016-04-19
             </time>
           </span>
 
@@ -290,8 +290,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Default/" itemprop="url" rel="index">
-                    <span itemprop="name">Default</span>
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
                   </a>
                 </span>
 
@@ -306,8 +306,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/02/22/foreword-i-want-to-say/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/foreword-i-want-to-say/" itemprop="commentsCount"></span>
+                <a href="/2016/04/19/lack-of-java-stacktrace/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/19/lack-of-java-stacktrace/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -329,9 +329,10 @@
 
       
         
-          <p>首先欢迎大家访问我的博客，这是我的用Hexo搭建好博客后的第一篇文章，这篇文章不是关于某一项具体的技术或知识，而是关于我个人的“博客史”和我对于个人博客内容和用途的一些说明，对于读者来说，这是一个了解我的博客大致情况的介绍。</p>
+          <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>NullPointerException是Java中我们最常看见的一类异常，通常空指针异常也都有详细的错误堆栈，但是在一次内部的压测中，系统日志中出现了很多NPE但却缺少错误堆栈信息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;    &#34;msg&#34;:&#34;&#26381;&#21153;&#22120;&#32321;&#24537;&#65292;&#35831;&#31245;&#20505;&#37325;&#35797;&#34;,&#10;    &#34;trace&#34;:&#34;java.lang.NullPointerException&#34;,    &#10;    &#34;code&#34;:1,&#10;    &#34;success&#34;:false,&#10;    &#34;errCode&#34;:&#34;1&#34;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>问题是缺少堆栈信息怎么排除错误呢？因此为了能够定位到错误代码必须让日志打印出这个NPE的堆栈。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/22/foreword-i-want-to-say/#more" rel="contents">
+            <a class="btn" href="/2016/04/19/lack-of-java-stacktrace/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -395,7 +396,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -403,7 +404,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -412,7 +413,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
