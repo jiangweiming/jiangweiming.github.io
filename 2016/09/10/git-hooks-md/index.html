@@ -70,7 +70,7 @@ Git钩子Git钩子是在Git仓">
 <meta property="og:image" content="http://www.jberg.xyz/uploads/git/hooks.png">
 <meta property="og:image" content="http://www.jberg.xyz/uploads/git/hook_func.png">
 <meta property="og:image" content="http://www.jberg.xyz/uploads/git/commit_func.png">
-<meta property="og:updated_time" content="2016-09-10T05:57:54.000Z">
+<meta property="og:updated_time" content="2016-09-10T15:21:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="自定义Git钩子">
 <meta name="twitter:description" content="说明最近我们打算在开发流程中通过jar包依赖的方式（使用maven进行依赖管理）向服务调用方提供SOA或Dubbo服务接口，为了解决可能存在并行开发依赖问题需要为并行过程同一服务接口jar包定义不同的version，Git Hook（钩子）的方式自动生成version是可能的一种解决方案，虽然因为这种方式不够灵活而不被采用但Git钩子的轻便和丰富功能仍然值得了解。
@@ -269,6 +269,25 @@ Git钩子Git钩子是在Git仓">
           </span>
 
           
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Git/" itemprop="url" rel="index">
+                    <span itemprop="name">Git</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
 
           
             
@@ -325,7 +344,7 @@ Git钩子Git钩子是在Git仓">
 <li><strong>update</strong><br>update 钩子和 pre-receive 脚本十分类似，不同之处在于它会为每一个准备更新的分支各运行一次， 假如推送者同时向多个分支推送内容，pre-receive 只运行一次。它接受三个参数：引用的名字（分支），推送前的引用指向的内容的 SHA-1 值，以及用户准备推送的内容的 SHA-1 值。</li>
 <li><strong>post-receive</strong><br>在整个过程完结以后运行，可以用来更新其他系统服务或者通知用户，包括给某个邮件列表发信，通知持续集成的服务器，或者更新问题追踪系统。</li>
 </ul>
-<h2 id="简单的示例"><a href="#简单的示例" class="headerlink" title="简单的示例"></a>简单的示例</h2><p>下面是一个用python写的Git钩子的简单脚本，这个 commit-msg 钩子的功能是在用户输入提交message时校验提交message的长度是否大于20，如果message的长度大于20则commit失败，反之则能成功commit，python代码如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># require python &gt;= 2.7</span></span><br><span class="line"><span class="comment"># author jberg</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="comment">#存储提交信息的临时文件路径通过stdin传入，argv[0]是当前钩子的文件路径，argv[1]是存储临时文件路径</span></span><br><span class="line">    commit_msg_file = sys.argv[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">with</span> codecs.open(commit_msg_file) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="comment">#读取存有当前提交信息的临时文件中的commit message</span></span><br><span class="line">        commit_msg = f.readline().strip()</span><br><span class="line">    <span class="keyword">if</span> len(commit_msg) &gt; <span class="number">20</span>:</span><br><span class="line">        print(<span class="string">'Error: commit message [%s] exceed 20 characters.'</span> % commit_msg)</span><br><span class="line">        print(<span class="string">'\nCommit Failed!'</span>)</span><br><span class="line">        exit(<span class="number">1</span>)</span><br><span class="line">    exit(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="简单的示例"><a href="#简单的示例" class="headerlink" title="简单的示例"></a>简单的示例</h2><p>下面是一个用python写的Git钩子的简单脚本，这个 commit-msg 钩子的功能是在用户输入提交message时校验提交message的长度是否大于20，如果message的长度大于20则commit失败，反之则能成功commit，python代码如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># require python &gt;= 2.7</span></span><br><span class="line"><span class="comment"># author jberg</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="comment">#存储提交信息的临时文件路径通过stdin传入，argv[0]是当前钩子的文件路径，argv[1]是存储临时文件路径</span></span><br><span class="line">    commit_msg_file = sys.argv[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">with</span> codecs.open(commit_msg_file) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="comment">#读取存有当前提交信息的临时文件中的commit message</span></span><br><span class="line">        commit_msg = f.readline().strip()</span><br><span class="line">        <span class="keyword">if</span> len(commit_msg) &gt; <span class="number">20</span>:</span><br><span class="line">            print(<span class="string">'Error: commit message [%s] exceed 20 characters.'</span> % commit_msg)</span><br><span class="line">            print(<span class="string">'\nCommit Failed!'</span>)</span><br><span class="line">            exit(<span class="number">1</span>)</span><br><span class="line">    exit(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
 <p>这里需要着重说明的是Git钩子的参数（如果该钩子有参数的话）是通过stdin被传给钩子脚本的，参数视具体的钩子而定，上面的例子中如果message的长度大于20则打印错误信息并<code>exit(1)</code>，如果message满足要求则<code>exit（0）</code>正常退出。</p>
 <p>这里还有一个拦截大文件提交的pre-commit的例子<a href="/uploads/git/pre-commit">pre-commit</a>，以上这些python钩子仅在Mac和Linux上可用。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
@@ -457,7 +476,7 @@ Git钩子Git钩子是在Git仓">
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
