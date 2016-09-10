@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# require python >= 2.7
+# author sanzang
+
+import os
+import subprocess
+
+
+_POSIX_LINE_SEP = '\n'
+_ONE_MEGABYTE = 2 ** 20
+
+
+def get_commit_files():
+    '''
+    obtain pre-commit files
+    '''
+    out = subprocess.check_output(
+        'git diff --name-only --cached', shell=True, cwd=os.getcwd())
+    return out.strip().split(_POSIX_LINE_SEP)
+
+
+def try_acquire_size(path):
+    '''
+    return file size in bytes
+    '''
+    try:
+        # in case for file be deleted
+        return os.path.getsize(path)
+    except Exception, e:
+        return 0
+
+
+def make_msg(too_large, max_size):
+    '''
+    print error message
+    '''
+    msg = "ERROR: your commit contains %s files that exceed size limit of %d bytes:\n%s"
+    msg = msg % (len(too_large), max_size, "\n".join(sorted(too_large)))
+    msg += "\n\nUse the '--no-verify' option to by-pass this hook"
+    return msg
+
+
+def check_files(paths, max_size_mb):
+    '''
+    check files large than max_size_mb
+    '''
+    files = {p.rstrip(): try_acquire_size(p.strip()) for p in paths}
+    size_in_bytes = max_size_mb * _ONE_MEGABYTE
+    too_large = [name for name, size in files.items() if size > size_in_bytes]
+    return make_msg(too_large, size_in_bytes) if too_large else 0
+
+
+if __name__ == '__main__':
+    paths = get_commit_files()
+    if paths:
+        exit(check_files(paths, 1))  # max size 1mb
+    else:
+        exit(0)
